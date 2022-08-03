@@ -1,0 +1,16 @@
+{
+  "pages": [
+    "index/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#3498db",
+    "navigationBarTitleText": "BLE TOOL",
+    "navigationBarTextStyle": "black", 
+    "navigationStyle": "custom"
+  },
+  "sitemapLocation": "sitemap.json",
+  "usingComponents": {
+    "cu-custom":"/colorui/components/cu-custom"
+  }
+}
