@@ -50,36 +50,33 @@ Page({
     devices: [],
     triggered: false,
     connected: false,
+    consoleSwitch: 1,
     chs: [],
     cardCur: 0,
     swiperList: [{
       id: 0,
       type: 'image',
-      url: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big84000.jpg'
+      url: 'https://cdn.yun.sooce.cn/6/34931/jpg/16522555312680c9ad68c5ecfd418.jpg?imageMogr2/thumbnail/3186x&version=0'
     }, {
       id: 1,
         type: 'image',
-        url: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big84001.jpg',
+        url: 'https://cdn.yun.sooce.cn/6/34931/jpg/16469027196653c33b0b033ebef27.jpg?imageMogr2/thumbnail/1918x&version=1646902722',
     }, {
       id: 2,
       type: 'image',
-      url: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big39000.jpg'
+      url: 'https://cdn.yun.sooce.cn/6/34931/jpg/1648549389662e69db3e1184a407c.jpg?imageMogr2/thumbnail/1800x&version=1648549393'
     }, {
       id: 3,
       type: 'image',
-      url: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big10001.jpg'
+      url: 'https://cdn.yun.sooce.cn/6/34931/jpg/164007717367373a421b14cd8fc29.jpg?imageMogr2/thumbnail/1800x&version=0'
     }, {
       id: 4,
       type: 'image',
-      url: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big25011.jpg'
+      url: 'https://cdn.yun.sooce.cn/6/34931/jpg/16398159583051444bb6f79cc8a75.jpg?imageMogr2/thumbnail/1800x&version=1639815960'
     }, {
       id: 5,
       type: 'image',
-      url: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big21016.jpg'
-    }, {
-      id: 6,
-      type: 'image',
-      url: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big99008.jpg'
+      url: 'https://cdn.yun.sooce.cn/6/34931/jpg/16570151830798ff4d34d644f0c94.jpg?imageMogr2/thumbnail/1800x&version=0'
     }],
   },
   // cardSwiper
@@ -95,7 +92,17 @@ Page({
         triggered: false,
       })
     },2000);
-    this.openBluetoothAdapter()
+    this.startBluetoothDevicesDiscovery()
+  },
+  showModal(e) {
+    this.setData({
+      modalName: e.currentTarget.dataset.target
+    })
+  },
+  hideModal(e) {
+    this.setData({
+      modalName: null
+    })
   },
   openBluetoothAdapter() {
     
@@ -130,6 +137,11 @@ Page({
   },
   startBluetoothDevicesDiscovery() {
     console.log('startBluetoothDevicesDiscovery success')
+    this.setData({
+      connected: false,
+      chs: [],
+      canWrite: false,
+    })
     if (this._discoveryStarted) {
       return
     }
@@ -166,6 +178,7 @@ Page({
     })
   },
   createBLEConnection(e) {
+    this.showModal(e);
     const ds = e.currentTarget.dataset
     const deviceId = ds.deviceId
     const name = ds.name
@@ -182,7 +195,8 @@ Page({
     })
     this.stopBluetoothDevicesDiscovery()
   },
-  closeBLEConnection() {
+  closeBLEConnection(e) {
+    this.hideModal(e);
     wx.closeBLEConnection({
       deviceId: this.data.deviceId
     })
@@ -286,5 +300,33 @@ Page({
   closeBluetoothAdapter() {
     wx.closeBluetoothAdapter()
     this._discoveryStarted = false
+  },
+  /**
+   * 生命周期函数--监听页面加载
+   */
+  onLoad: function (options) {
+    if(!app.globalData.consoleSwitch){
+      console.log = ()=>{}
+    }
+    console.log("onLoad");
+    this.openBluetoothAdapter();
+  },
+  /**
+   * 生命周期函数--监听页面初次渲染完成
+   */
+  onReady: function () {
+    console.log("onReady");
+  },
+  /**
+   * 生命周期函数--监听页面显示
+   */
+  onShow: function () {
+    console.log("onShow");
+  },
+  /**
+   * 生命周期函数--监听页面隐藏
+   */
+  onHide: function () {
+    console.log("onHide");
   },
 })

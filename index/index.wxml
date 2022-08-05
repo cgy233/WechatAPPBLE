@@ -8,60 +8,58 @@ module.exports.len = function(arr) {
 }
 </wxs>
 <cu-custom bgColor="bg-gradual-blue" isBack="{{true}}">
-  <!-- <view slot="backText">返回</view> -->
   <view slot="content">BLE TOOL</view>
 </cu-custom>
-<!-- <swiper class="cover_swiper" indicator-dots='true' display-multiple-items='1' current='{{ centerItem }}' bindanimationfinish='handleSwiperChange'  previous-margin='30' next-margin='30' autoplay='true' circular='true' interval='2000'>
-  <block wx:for="{{coverList}}" wx:key="id">
-    <swiper-item>
-      <view class='imageBox' style='text-align:center'>
-      <view class='mask' wx:if='{{ index != centerItem }}'></view>
-      <image src="{{item.url}}" mode='heightFix' /></view>
-    </swiper-item>
-  </block>
-</swiper> -->
 <swiper class="screen-swiper square-dot" indicator-dots="true" circular="true" autoplay="true" interval="5000" duration="500" bindchange="cardSwiper" indicator-color="#8799a3" indicator-active-color="#0081ff">
   <swiper-item wx:for="{{swiperList}}" wx:key="id" class="{{cardCur==index?'cur':''}}">
       <image src="{{item.url}}" mode="aspectFill"></image>
+      <view style="font-size: 22px;width:{{width}}px;padding:10rpx; color: black; font-weight: 800; padding: 2px 0;position: absolute;bottom:0;left:0%;transform:translateX(0%);text-align:left;">
+         <text style="color:#FFFFFF;padding-left:30rpx;">小未·新青年</text>
+      </view>
   </swiper-item>
 </swiper>
 <view class="bg-white solid-top solid-bottom">
   <view class="text-center padding bg-blue radius">已发现 {{devices.length}} 个蓝牙设备</view>
 </view>
-<view class="flex bg-white">
-  <button class="flex-sub padding-sm margin-xs cu-btn round lg bg-green" bindtap="openBluetoothAdapter">扫描设备</button>
-  <button class="flex-sub padding-sm margin-xs cu-btn round lg bg-red" bindtap="stopBluetoothDevicesDiscovery">停止扫描</button>
+<view class="flex bg-gray" style="position:fixed; bottom:0;width: 750rpx; z-index: 999;">
+  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-green" bindtap="openBluetoothAdapter">扫描设备</button>
+  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-red" bindtap="stopBluetoothDevicesDiscovery">停止扫描</button>
   <!-- <button class="flex-sub padding-sm margin-xs cu-btn round lg bg-red" bindtap="closeBluetoothAdapter">结束流程</button> -->
 </view>
-<scroll-view class="cu-list menu" scroll-y scroll-with-animation refresher-enabled="{{true}}" refresher-threshold="{{100}}" refresher-default-style="black" 
-        refresher-background="white" refresher-triggered="{{triggered}}" bindrefresherrefresh="onScrollRefresh">
+<scroll-view class="cu-list menu" style="height: 100%;width: 100%;" scroll-y scroll-with-animation refresher-enabled="{{true}}" refresher-threshold="{{100}}" refresher-default-style="black" refresher-background="white" refresher-triggered="{{triggered}}" bindrefresherrefresh="onScrollRefresh">
   <view wx:for="{{devices}}" wx:key="index"
    data-device-id="{{item.deviceId}}"
    data-name="{{item.name || item.localName}}"
-   bindtap="createBLEConnection" 
-   class="cu-item bg-white solid-top solid-bottom">
-    <view class="content">
-      <text class="cuIcon-rankfill text-blue"></text>
-      <text class="text-black text-df">{{item.name}}</text>
-      <view style="font-size: 10px">信号强度: {{item.RSSI}}dBm ({{utils.max(0, item.RSSI + 100)}}%)</view>
-      <view style="font-size: 10px">UUID: {{item.deviceId}}</view>
-      <!-- <view style="font-size: 10px">Service数量: {{utils.len(item.advertisServiceUUIDs)}}</view> -->
-   </view>
-   
+   bindtap="createBLEConnection"
+   data-target="bottomModal"
+   class="cu-item">
+   <view class="flex solid-bottom padding justify-between">
+      <view class="radius text-df">
+        <text class="cuIcon-rankfill text-blue " style="padding-right: 5rpx;"></text>
+        <text class="text-black">{{item.name}}</text>
+        <view style="font-size: 10px">信号强度: {{item.RSSI}}dBm ({{utils.max(0, item.RSSI + 100)}}%)</view>
+        <view style="font-size: 10px">UUID: {{item.deviceId}}</view>
+      </view>
+      <button class="cu-btn bg-cyan shadow" bindtap="createBLEConnection" data-target="bottomModal">连接</button>
+</view>
   </view>
 </scroll-view>
-
-<view class="connected_info" wx:if="{{connected}}">
-  <view>
-    <text>已连接到 {{name}}</text>
-    <view class="operation">
-    <button wx:if="{{canWrite}}" size="mini" bindtap="writeBLECharacteristicValue">写数据</button>
-    <button size="mini" bindtap="closeBLEConnection">断开连接</button>
+<view class="cu-modal bottom-modal {{modalName=='bottomModal'?'show':''}}">
+  <view class="cu-dialog">
+    <text class='text-blue text-lg'>已连接到 {{name}}</text>
+    <view class="padding-df">
+      <view>
+        <!-- <view wx:for="{{chs}}" wx:key="index" style="font-size: 12px; margin-top: 10px;"> -->
+        <view wx:for="{{chs}}" wx:key="index" style="font-size: 12px; margin-top: 10px;">
+        <!-- <view>特性UUID: {{item.uuid}}</view> -->
+          <view class="text-cut text-green text-xxl">数值: {{item.value}}</view>
+          <view class="text-gray text-df">日期: {{item.datetime}}</view>
+        </view>
+      </view>
     </view>
-  </view>
-  <view wx:for="{{chs}}" wx:key="index" style="font-size: 12px; margin-top: 10px;">
-   <!-- <view>特性UUID: {{item.uuid}}</view> -->
-    <view>收到的数据: {{item.value}}</view>
-    <view>日期 : {{item.datetime}}</view>
+    <view class="cu-bar bg-white">
+      <view class="action text-green" bindtap="writeBLECharacteristicValue">发送数据</view>
+      <view class="action text-red" bindtap="closeBLEConnection">断开连接</view>
+    </view>
   </view>
 </view>
