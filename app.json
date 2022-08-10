@@ -5,12 +5,17 @@
   "window": {
     "backgroundTextStyle": "dark",
     "navigationBarBackgroundColor": "#3498db",
-    "navigationBarTitleText": "BLE TOOL",
+    "navigationBarTitleText": "小蓝椰",
     "navigationBarTextStyle": "black", 
     "navigationStyle": "custom"
   },
   "sitemapLocation": "sitemap.json",
   "usingComponents": {
     "cu-custom":"/colorui/components/cu-custom"
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "授权定位有助于提高蓝牙连接的准确性"
+    }
   }
 }

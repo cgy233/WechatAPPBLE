@@ -79,6 +79,27 @@ Page({
       url: 'https://cdn.yun.sooce.cn/6/34931/jpg/16570151830798ff4d34d644f0c94.jpg?imageMogr2/thumbnail/1800x&version=0'
     }],
   },
+  mcShowSuccess(params) {
+    wx.showToast({
+      title: params,       //弹出提示
+      icon: 'success',
+      duration: 1000,
+    })
+  },
+  mcShowNone(params) {
+    wx.showToast({
+      title: params,       //弹出提示
+      icon: 'none',
+      duration: 2000,
+    })
+  },
+  mcShowLoading(params) {
+    wx.showToast({
+      title: params,       //弹出提示
+      icon: 'loading',
+      duration: 8000,
+    })
+  },
   // cardSwiper
   cardSwiper(e) {
     this.setData({
@@ -105,13 +126,14 @@ Page({
     })
   },
   openBluetoothAdapter() {
-    
     wx.openBluetoothAdapter({
       success: (res) => {
+        this.mcShowSuccess("蓝牙初始化成功");
         console.log('openBluetoothAdapter success', res)
         this.startBluetoothDevicesDiscovery()
       },
       fail: (res) => {
+        this.mcShowNone("初始化失败，请检查蓝牙开关");
         if (res.errCode === 10001) {
           wx.onBluetoothAdapterStateChange(function (res) {
             console.log('onBluetoothAdapterStateChange', res)
@@ -136,6 +158,7 @@ Page({
     })
   },
   startBluetoothDevicesDiscovery() {
+    this.mcShowLoading("正在扫描");
     console.log('startBluetoothDevicesDiscovery success')
     this.setData({
       connected: false,
@@ -155,6 +178,7 @@ Page({
     })
   },
   stopBluetoothDevicesDiscovery() {
+    this.mcShowSuccess("停止扫描");
     console.log('Stop scan.')
     wx.stopBluetoothDevicesDiscovery()
   },
@@ -178,22 +202,28 @@ Page({
     })
   },
   createBLEConnection(e) {
-    this.showModal(e);
+    this.mcShowLoading("正在连接");
     const ds = e.currentTarget.dataset
     const deviceId = ds.deviceId
     const name = ds.name
     wx.createBLEConnection({
       deviceId,
       success: (res) => {
+        this.mcShowSuccess("连接成功");
         this.setData({
           connected: true,
           name,
           deviceId,
         })
+        this.showModal(e);
         this.getBLEDeviceServices(deviceId)
+      },
+      fail: (res) =>
+      {
+        this.mcShowNone("连接失败");
       }
     })
-    this.stopBluetoothDevicesDiscovery()
+    wx.stopBluetoothDevicesDiscovery()
   },
   closeBLEConnection(e) {
     this.hideModal(e);
@@ -309,6 +339,12 @@ Page({
       console.log = ()=>{}
     }
     console.log("onLoad");
+    wx.getLocation({
+      type: 'gcj02',
+      success (res) {
+        console.log(res)
+      }
+     })
     this.openBluetoothAdapter();
   },
   /**

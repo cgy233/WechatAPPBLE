@@ -1,5 +1,33 @@
 App({
   onLaunch: function () {
+    // 可以通过 wx.getSetting 先查询一下用户是否授权了 "scope.bluetooth" 这个 scope
+    wx.getSetting({
+      success(res) {
+        console.log(res.authSetting)
+        //判断是否有'scope.bluetooth'属性
+        if (res.authSetting.hasOwnProperty('scope.bluetooth')) {
+          //'scope.bluetooth'属性存在，且为false
+          if (!res.authSetting['scope.bluetooth']) {
+            //弹窗授权
+            wx.openSetting({
+              success(res) {
+                console.log(res.authSetting)
+              }
+            })
+          }
+        }
+        else
+          //'scope.bluetooth'属性不存在，需要授权
+          wx.authorize({
+            scope: 'scope.bluetooth',
+            success() {
+              // 用户已经同意小程序使用手机蓝牙功能，后续调用 蓝牙 接口不会弹窗询问
+              console.log(res.authSetting)
+            }
+          })
+ 
+      }
+    }),
     wx.getSystemInfo({
     success: e => {
       this.globalData.StatusBar = e.statusBarHeight;

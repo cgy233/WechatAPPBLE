@@ -8,7 +8,7 @@ module.exports.len = function(arr) {
 }
 </wxs>
 <cu-custom bgColor="bg-gradual-blue" isBack="{{true}}">
-  <view slot="content">BLE TOOL</view>
+  <view slot="content">小蓝椰</view>
 </cu-custom>
 <swiper class="screen-swiper square-dot" indicator-dots="true" circular="true" autoplay="true" interval="5000" duration="500" bindchange="cardSwiper" indicator-color="#8799a3" indicator-active-color="#0081ff">
   <swiper-item wx:for="{{swiperList}}" wx:key="id" class="{{cardCur==index?'cur':''}}">
@@ -19,11 +19,11 @@ module.exports.len = function(arr) {
   </swiper-item>
 </swiper>
 <view class="bg-white solid-top solid-bottom">
-  <view class="text-center padding bg-blue radius">已发现 {{devices.length}} 个蓝牙设备</view>
+  <view class="text-center padding-sm shadow bg-blue">已发现 {{devices.length}} 个蓝牙设备</view>
 </view>
 <view class="flex bg-gray" style="position:fixed; bottom:0;width: 750rpx; z-index: 999;">
-  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-green" bindtap="openBluetoothAdapter">扫描设备</button>
-  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-red" bindtap="stopBluetoothDevicesDiscovery">停止扫描</button>
+  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-olive shadow" bindtap="startBluetoothDevicesDiscovery">扫描设备</button>
+  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-red shadow" bindtap="stopBluetoothDevicesDiscovery">停止扫描</button>
   <!-- <button class="flex-sub padding-sm margin-xs cu-btn round lg bg-red" bindtap="closeBluetoothAdapter">结束流程</button> -->
 </view>
 <scroll-view class="cu-list menu" style="height: 100%;width: 100%;" scroll-y scroll-with-animation refresher-enabled="{{true}}" refresher-threshold="{{100}}" refresher-default-style="black" refresher-background="white" refresher-triggered="{{triggered}}" bindrefresherrefresh="onScrollRefresh">
@@ -58,7 +58,7 @@ module.exports.len = function(arr) {
       </view>
     </view>
     <view class="cu-bar bg-white">
-      <view class="action text-green" bindtap="writeBLECharacteristicValue">发送数据</view>
+      <view class="action text-olive" bindtap="writeBLECharacteristicValue">发送数据</view>
       <view class="action text-red" bindtap="closeBLEConnection">断开连接</view>
     </view>
   </view>
