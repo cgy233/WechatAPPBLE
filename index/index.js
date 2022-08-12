@@ -42,17 +42,28 @@ function getNowTime()
   // console.log("当前时间：" + date.toLocaleDateString());
   return  date.toLocaleString()
 }
-
-const gServiceId = "0000fff0-0000-1000-8000-00805f9b34fb"
-const gReceiveId = "0000fff6-0000-1000-8000-00805f9b34fb"
 Page({
   data: {
     devices: [],
     triggered: false,
     connected: false,
-    consoleSwitch: 1,
     chs: [],
     cardCur: 0,
+    test_data: [{
+      id:0,
+      data: 33,
+      power: 90
+    },
+    {
+      id:1,
+      data: 44,
+      power: 60
+    },
+    {
+      id:2,
+      data: 33,
+      power: 60
+    }],
     swiperList: [{
       id: 0,
       type: 'image',
@@ -124,6 +135,9 @@ Page({
     this.setData({
       modalName: null
     })
+  },
+  receiveData(buf) {
+    console.log("收到的数据：", buf)
   },
   openBluetoothAdapter() {
     wx.openBluetoothAdapter({
@@ -232,6 +246,7 @@ Page({
     })
     this.setData({
       connected: false,
+      name: "",
       chs: [],
       canWrite: false,
     })
@@ -272,7 +287,7 @@ Page({
             this._deviceId = deviceId
             this._serviceId = serviceId
             this._characteristicId = item.uuid
-            this.writeBLECharacteristicValue()
+            //this.writeBLECharacteristicValue()
           }
           if (item.properties.notify || item.properties.indicate) {
             wx.notifyBLECharacteristicValueChange({
@@ -290,6 +305,7 @@ Page({
     })
     // 操作之前先监听，保证第一时间获取数据
     wx.onBLECharacteristicValueChange((characteristic) => {
+      this.receiveData(ab2hex(characteristic.value));
       var datetime = getNowTime()
       const idx = inArray(this.data.chs, 'uuid', characteristic.characteristicId)
       const data = {}
@@ -335,9 +351,6 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    if(!app.globalData.consoleSwitch){
-      console.log = ()=>{}
-    }
     console.log("onLoad");
     wx.getLocation({
       type: 'gcj02',

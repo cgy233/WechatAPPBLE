@@ -8,7 +8,7 @@ module.exports.len = function(arr) {
 }
 </wxs>
 <cu-custom bgColor="bg-gradual-blue" isBack="{{true}}">
-  <view slot="content">小蓝椰</view>
+  <view slot="content">蓝椰</view>
 </cu-custom>
 <swiper class="screen-swiper square-dot" indicator-dots="true" circular="true" autoplay="true" interval="5000" duration="500" bindchange="cardSwiper" indicator-color="#8799a3" indicator-active-color="#0081ff">
   <swiper-item wx:for="{{swiperList}}" wx:key="id" class="{{cardCur==index?'cur':''}}">
@@ -41,25 +41,39 @@ module.exports.len = function(arr) {
         <view style="font-size: 10px">UUID: {{item.deviceId}}</view>
       </view>
       <button class="cu-btn bg-cyan shadow" bindtap="createBLEConnection" data-target="bottomModal">连接</button>
-</view>
   </view>
+</view>
 </scroll-view>
-<view class="cu-modal bottom-modal {{modalName=='bottomModal'?'show':''}}">
+<view class="cu-modal show {{modalName=='bottomModal'?'show':''}}">
   <view class="cu-dialog">
-    <text class='text-blue text-lg'>已连接到 {{name}}</text>
-    <view class="padding-df">
-      <view>
+    <text class='text-blue text-xl text-bold'>公司设备名 {{name}}</text>
+<view class="padding-sm bg-gray">
+<scroll-view class="cu-list menu radius solid" style="height: 100%;width: 100%;" scroll-y scroll-with-animation>
+  <view class="flex bg-blue solid-bottom padding-sm justify-between">
+  <view>序号</view>
+  <view>温度</view>
+  <view>电量</view>
+</view>
+  <view wx:for="{{test_data}}" wx:key="index"
+   class="cu-item">
+   <view class="flex solid-bottom padding-sm justify-between">
+    <view>{{item.id}}</view>
+    <view>{{item.data}}</view>
+    <view>{{item.power}}</view>
+  </view>
+</view>
+</scroll-view>
         <!-- <view wx:for="{{chs}}" wx:key="index" style="font-size: 12px; margin-top: 10px;"> -->
         <view wx:for="{{chs}}" wx:key="index" style="font-size: 12px; margin-top: 10px;">
         <!-- <view>特性UUID: {{item.uuid}}</view> -->
-          <view class="text-cut text-green text-xxl">数值: {{item.value}}</view>
-          <view class="text-gray text-df">日期: {{item.datetime}}</view>
+          <view class="text-cut text-left text-green text-xl">数值1: {{item.value}}</view>
+          <view class="text-cut text-left text-green text-xl">数值2: {{item.value}}</view>
+          <view class="text-gray text-left text-df">日期: {{item.datetime}}</view>
         </view>
-      </view>
     </view>
-    <view class="cu-bar bg-white">
-      <view class="action text-olive" bindtap="writeBLECharacteristicValue">发送数据</view>
-      <view class="action text-red" bindtap="closeBLEConnection">断开连接</view>
+    <view class="cu-bar bg-white padding-xs">
+      <view class="cu-btn round df bg-olive" bindtap="writeBLECharacteristicValue">读取数据</view>
+      <view class="cu-btn round df bg-red" bindtap="closeBLEConnection">断开连接</view>
     </view>
   </view>
 </view>

@@ -15,7 +15,8 @@
   },
   "permission": {
     "scope.userLocation": {
-      "desc": "授权定位有助于提高蓝牙连接的准确性"
+      "desc": "需获取设备的定位信息"
     }
-  }
+  },
+	"lazyCodeLoading": "requiredComponents"
 }
