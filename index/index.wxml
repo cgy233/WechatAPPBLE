@@ -7,10 +7,15 @@ module.exports.len = function(arr) {
   return arr.length
 }
 </wxs>
-<cu-custom bgColor="bg-gradual-blue" isBack="{{true}}">
-  <view slot="content">蓝椰</view>
+<cu-custom bgColor="bg-gradual-blue" isBack="{{false}}">
+  <block wx:if="{{modalName=='bottomModal'}}">
+    <view slot="content">设备名-{{name}}</view>
+  </block>
+  <block wx:else>
+    <view slot="content">蓝椰</view>
+  </block>
 </cu-custom>
-<swiper class="screen-swiper square-dot" indicator-dots="true" circular="true" autoplay="true" interval="5000" duration="500" bindchange="cardSwiper" indicator-color="#8799a3" indicator-active-color="#0081ff">
+<swiper hidden="{{modalName=='bottomModal'}}" class="screen-swiper square-dot" indicator-dots="true" circular="true" autoplay="true" interval="5000" duration="500" bindchange="cardSwiper" indicator-color="#8799a3" indicator-active-color="#0081ff">
   <swiper-item wx:for="{{swiperList}}" wx:key="id" class="{{cardCur==index?'cur':''}}">
       <image src="{{item.url}}" mode="aspectFill"></image>
       <view style="font-size: 22px;width:{{width}}px;padding:10rpx; color: black; font-weight: 800; padding: 2px 0;position: absolute;bottom:0;left:0%;transform:translateX(0%);text-align:left;">
@@ -18,15 +23,29 @@ module.exports.len = function(arr) {
       </view>
   </swiper-item>
 </swiper>
-<view class="bg-white solid-top solid-bottom">
+<view hidden="{{modalName=='bottomModal'}}" class="bg-white solid-top solid-bottom">
   <view class="text-center padding-sm shadow bg-blue">已发现 {{devices.length}} 个蓝牙设备</view>
 </view>
-<view class="flex bg-gray" style="position:fixed; bottom:0;width: 750rpx; z-index: 999;">
-  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-olive shadow" bindtap="startBluetoothDevicesDiscovery">扫描设备</button>
-  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-red shadow" bindtap="stopBluetoothDevicesDiscovery">停止扫描</button>
-  <!-- <button class="flex-sub padding-sm margin-xs cu-btn round lg bg-red" bindtap="closeBluetoothAdapter">结束流程</button> -->
-</view>
-<scroll-view class="cu-list menu" style="height: 100%;width: 100%;" scroll-y scroll-with-animation refresher-enabled="{{true}}" refresher-threshold="{{100}}" refresher-default-style="black" refresher-background="white" refresher-triggered="{{triggered}}" bindrefresherrefresh="onScrollRefresh">
+<block wx:if="{{modalName=='bottomModal'}}">
+  <scroll-view class="cu-list menu solid" style="height: 100%;width: 100%;" scroll-y scroll-with-animation>
+    <view class="flex cu-item bg-yellow solid-bottom padding justify-between">
+    <view>序号</view>
+    <view>温度</view>
+    <view>电量</view>
+    <view>接收时间</view>
+    </view>
+    <view wx:for="{{chs}}" wx:key="index" class="cu-item">
+      <view class="flex solid-bottom padding justify-between">
+        <view class="padding-left-sm">{{item.id}}</view>
+        <view class="padding-left-sm">{{item.t_data}}</view>
+        <view class="padding-left-sm">{{item.power}}</view>
+        <view >{{item.time}}</view>
+      </view>
+    </view>
+  </scroll-view>
+</block>
+<block wx:else>
+  <scroll-view class="cu-list menu" style="height: 100%;width: 100%;" scroll-y scroll-with-animation refresher-enabled="{{true}}" refresher-threshold="{{100}}" refresher-default-style="black" refresher-background="white" refresher-triggered="{{triggered}}" bindrefresherrefresh="onScrollRefresh">
   <view wx:for="{{devices}}" wx:key="index"
    data-device-id="{{item.deviceId}}"
    data-name="{{item.name || item.localName}}"
@@ -41,39 +60,20 @@ module.exports.len = function(arr) {
         <view style="font-size: 10px">UUID: {{item.deviceId}}</view>
       </view>
       <button class="cu-btn bg-cyan shadow" bindtap="createBLEConnection" data-target="bottomModal">连接</button>
-  </view>
-</view>
-</scroll-view>
-<view class="cu-modal show {{modalName=='bottomModal'?'show':''}}">
-  <view class="cu-dialog">
-    <text class='text-blue text-xl text-bold'>公司设备名 {{name}}</text>
-<view class="padding-sm bg-gray">
-<scroll-view class="cu-list menu radius solid" style="height: 100%;width: 100%;" scroll-y scroll-with-animation>
-  <view class="flex bg-blue solid-bottom padding-sm justify-between">
-  <view>序号</view>
-  <view>温度</view>
-  <view>电量</view>
-</view>
-  <view wx:for="{{test_data}}" wx:key="index"
-   class="cu-item">
-   <view class="flex solid-bottom padding-sm justify-between">
-    <view>{{item.id}}</view>
-    <view>{{item.data}}</view>
-    <view>{{item.power}}</view>
-  </view>
-</view>
-</scroll-view>
-        <!-- <view wx:for="{{chs}}" wx:key="index" style="font-size: 12px; margin-top: 10px;"> -->
-        <view wx:for="{{chs}}" wx:key="index" style="font-size: 12px; margin-top: 10px;">
-        <!-- <view>特性UUID: {{item.uuid}}</view> -->
-          <view class="text-cut text-left text-green text-xl">数值1: {{item.value}}</view>
-          <view class="text-cut text-left text-green text-xl">数值2: {{item.value}}</view>
-          <view class="text-gray text-left text-df">日期: {{item.datetime}}</view>
-        </view>
-    </view>
-    <view class="cu-bar bg-white padding-xs">
-      <view class="cu-btn round df bg-olive" bindtap="writeBLECharacteristicValue">读取数据</view>
-      <view class="cu-btn round df bg-red" bindtap="closeBLEConnection">断开连接</view>
     </view>
   </view>
-</view>
+</scroll-view>
+</block>
+<block wx:if="{{modalName=='bottomModal'}}">
+  <view class="flex bg-gray" style="position:fixed; bottom:0;width: 750rpx; z-index: 999;">
+  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-olive shadow" bindtap="writeBLECharacteristicValue">读取数据</button>
+  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-red shadow" bindtap="closeBLEConnection">断开连接</button>
+  </view>
+</block>
+<block wx:else>
+  <view class="flex bg-gray" style="position:fixed; bottom:0;width: 750rpx; z-index: 999;">
+  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-olive shadow" bindtap="startBluetoothDevicesDiscovery">扫描设备</button>
+  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-red shadow" bindtap="stopBluetoothDevicesDiscovery">停止扫描</button>
+  </view>
+</block>
+

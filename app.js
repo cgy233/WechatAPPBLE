@@ -38,6 +38,7 @@ App({
   })
   },
   globalData: {
+    msg_list: [],
     ColorList: [{
       title: '嫣红',
       name: 'red',

@@ -35,12 +35,11 @@ function getNowTime()
   
   //获取当前时间戳
   var timestamp = Date.parse(new Date());
-  timestamp = timestamp / 1000;
   //获取当前时间
-  var n = timestamp * 1000;
-  var date = new Date(n);
+  var _date = new Date(timestamp);
+  let str = _date.toTimeString();
   // console.log("当前时间：" + date.toLocaleDateString());
-  return  date.toLocaleString()
+  return str.substring(0,8);
 }
 Page({
   data: {
@@ -48,22 +47,9 @@ Page({
     triggered: false,
     connected: false,
     chs: [],
+    msg_list: [],
     cardCur: 0,
-    test_data: [{
-      id:0,
-      data: 33,
-      power: 90
-    },
-    {
-      id:1,
-      data: 44,
-      power: 60
-    },
-    {
-      id:2,
-      data: 33,
-      power: 60
-    }],
+    id: 1,
     swiperList: [{
       id: 0,
       type: 'image',
@@ -240,7 +226,9 @@ Page({
     wx.stopBluetoothDevicesDiscovery()
   },
   closeBLEConnection(e) {
-    this.hideModal(e);
+    this.hideModal(e)
+    app.globalData.msg_list = []
+    this.data.id = 1;
     wx.closeBLEConnection({
       deviceId: this.data.deviceId
     })
@@ -287,7 +275,7 @@ Page({
             this._deviceId = deviceId
             this._serviceId = serviceId
             this._characteristicId = item.uuid
-            //this.writeBLECharacteristicValue()
+            this.writeBLECharacteristicValue()
           }
           if (item.properties.notify || item.properties.indicate) {
             wx.notifyBLECharacteristicValueChange({
@@ -307,21 +295,39 @@ Page({
     wx.onBLECharacteristicValueChange((characteristic) => {
       this.receiveData(ab2hex(characteristic.value));
       var datetime = getNowTime()
-      const idx = inArray(this.data.chs, 'uuid', characteristic.characteristicId)
       const data = {}
+      // const idx = inArray(this.data.chs, 'uuid', characteristic.characteristicId)
+      /*
       if (idx === -1) {
         data[`chs[${this.data.chs.length}]`] = {
+          id: this.data.id,
+          t_data: 66,
+          power: 90,
           uuid: characteristic.characteristicId,
           value: ab2hex(characteristic.value),
-          datetime: datetime
+          time: datetime
         }
       } else {
         data[`chs[${idx}]`] = {
+          id: this.data.id,
+          t_data: 66,
+          power: 90,
           uuid: characteristic.characteristicId,
           value: ab2hex(characteristic.value),
-          datetime: datetime
-        }
+          time: datetime
+        } 
       }
+      */
+      app.globalData.msg_list.push({
+        id: this.data.id,
+        t_data: ab2hex(characteristic.value).slice(0, 2),
+        power: ab2hex(characteristic.value).slice(2, 4),
+        value: ab2hex(characteristic.value),
+        time: datetime
+      })
+      console.log("收到数据列表",  app.globalData.msg_list)
+      data["chs"] = app.globalData.msg_list
+      this.data.id += 1;
       this.setData(data)
     })
   },
