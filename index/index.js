@@ -4,10 +4,22 @@ const app = getApp();
 
 function stringToHexBuffer(data) {
   let typedArray = new Uint8Array(data.match(/[\da-f]{2}/gi).map(function (h) {
-  return parseInt(h, 16)
+    return parseInt(h, 16)
   }))
   return typedArray.buffer
 }
+/*
+  数组转字符串
+*/
+function byteToString(buf) {
+  let buffer = new Uint8Array(buf)
+  return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
+};
+
+function StringToByte(str) {
+  let array2 = stringToHexBuffer(str);
+  return new Uint8Array(array2);
+};
 
 function inArray(arr, key, val) {
   for (let i = 0; i < arr.length; i++) {
@@ -18,6 +30,16 @@ function inArray(arr, key, val) {
   return -1;
 }
 
+function arraybuffToHexBuffe(data) {
+  let typedArray = new Uint8Array(data.match(/[\da-f]{2}/gi).map(function (h) {
+    return parseInt(h, 16)
+  }))
+  return typedArray;
+};
+// ArrayBuffer转16进度字符串示例
+function buf2hex(buffer) {
+  return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
+};
 // ArrayBuffer转16进度字符串示例
 function ab2hex(buffer) {
   var hexArr = Array.prototype.map.call(
@@ -30,16 +52,15 @@ function ab2hex(buffer) {
 }
 
 //  获取系统当前时间
-function getNowTime()
-{
-  
+function getNowTime() {
+
   //获取当前时间戳
   var timestamp = Date.parse(new Date());
   //获取当前时间
   var _date = new Date(timestamp);
   let str = _date.toTimeString();
   // console.log("当前时间：" + date.toLocaleDateString());
-  return str.substring(0,8);
+  return str.substring(0, 8);
 }
 Page({
   data: {
@@ -47,7 +68,8 @@ Page({
     triggered: false,
     connected: false,
     chs: [],
-    msg_list: [],
+    power: 99,
+    name: "生物有限公司",
     cardCur: 0,
     id: 1,
     swiperList: [{
@@ -56,8 +78,8 @@ Page({
       url: 'https://cdn.yun.sooce.cn/6/34931/jpg/16522555312680c9ad68c5ecfd418.jpg?imageMogr2/thumbnail/3186x&version=0'
     }, {
       id: 1,
-        type: 'image',
-        url: 'https://cdn.yun.sooce.cn/6/34931/jpg/16469027196653c33b0b033ebef27.jpg?imageMogr2/thumbnail/1918x&version=1646902722',
+      type: 'image',
+      url: 'https://cdn.yun.sooce.cn/6/34931/jpg/16469027196653c33b0b033ebef27.jpg?imageMogr2/thumbnail/1918x&version=1646902722',
     }, {
       id: 2,
       type: 'image',
@@ -78,21 +100,21 @@ Page({
   },
   mcShowSuccess(params) {
     wx.showToast({
-      title: params,       //弹出提示
+      title: params, //弹出提示
       icon: 'success',
       duration: 1000,
     })
   },
   mcShowNone(params) {
     wx.showToast({
-      title: params,       //弹出提示
+      title: params, //弹出提示
       icon: 'none',
       duration: 2000,
     })
   },
   mcShowLoading(params) {
     wx.showToast({
-      title: params,       //弹出提示
+      title: params, //弹出提示
       icon: 'loading',
       duration: 8000,
     })
@@ -104,12 +126,12 @@ Page({
     })
   },
   onScrollRefresh: function () {
-    var that=this;
-    setTimeout(function(){
+    var that = this;
+    setTimeout(function () {
       that.setData({
         triggered: false,
       })
-    },2000);
+    }, 2000);
     this.startBluetoothDevicesDiscovery()
   },
   showModal(e) {
@@ -133,6 +155,10 @@ Page({
         this.startBluetoothDevicesDiscovery()
       },
       fail: (res) => {
+        //test
+        // const tempSendData = "AA550308610C8A5A0000000000000055AA";
+        // let test_data = StringToByte(tempSendData)
+        // console.log("mg:", (test_data[5] << 8) +  test_data[6])
         this.mcShowNone("初始化失败，请检查蓝牙开关");
         if (res.errCode === 10001) {
           wx.onBluetoothAdapterStateChange(function (res) {
@@ -158,7 +184,7 @@ Page({
     })
   },
   startBluetoothDevicesDiscovery() {
-    this.mcShowLoading("正在扫描");
+    this.mcShowLoading("开始扫描");
     console.log('startBluetoothDevicesDiscovery success')
     this.setData({
       connected: false,
@@ -168,10 +194,10 @@ Page({
     if (this._discoveryStarted) {
       return
     }
-    this._discoveryStarted = true
     wx.startBluetoothDevicesDiscovery({
       allowDuplicatesKey: true,
       success: (res) => {
+        this._discoveryStarted = true
         console.log('startBluetoothDevicesDiscovery success', res)
         this.onBluetoothDeviceFound()
       },
@@ -183,7 +209,7 @@ Page({
     wx.stopBluetoothDevicesDiscovery()
   },
   onBluetoothDeviceFound() {
-    this.data.devices =  [];
+    this.data.devices = [];
     wx.onBluetoothDeviceFound((res) => {
       res.devices.forEach(device => {
         if (!device.name && !device.localName) {
@@ -203,6 +229,7 @@ Page({
   },
   createBLEConnection(e) {
     this.mcShowLoading("正在连接");
+    wx.stopBluetoothDevicesDiscovery()
     const ds = e.currentTarget.dataset
     const deviceId = ds.deviceId
     const name = ds.name
@@ -218,12 +245,10 @@ Page({
         this.showModal(e);
         this.getBLEDeviceServices(deviceId)
       },
-      fail: (res) =>
-      {
+      fail: (res) => {
         this.mcShowNone("连接失败");
       }
     })
-    wx.stopBluetoothDevicesDiscovery()
   },
   closeBLEConnection(e) {
     this.hideModal(e)
@@ -258,7 +283,7 @@ Page({
       serviceId,
       success: (res) => {
         console.log('getBLEDeviceCharacteristics success', res.characteristics)
-        console.log('This service id is',  deviceId)
+        console.log('This service id is', deviceId)
         for (let i = 0; i < res.characteristics.length; i++) {
           let item = res.characteristics[i]
           if (item.properties.read) {
@@ -275,7 +300,7 @@ Page({
             this._deviceId = deviceId
             this._serviceId = serviceId
             this._characteristicId = item.uuid
-            this.writeBLECharacteristicValue()
+            //this.writeBLECharacteristicValue()
           }
           if (item.properties.notify || item.properties.indicate) {
             wx.notifyBLECharacteristicValueChange({
@@ -318,35 +343,39 @@ Page({
         } 
       }
       */
+      let _data = buf2hex(characteristic.value);
+      const tempSendData = "AA550308610C8A5A0000000000000055AA";
+      //let test_data = buf2hex(characteristic.value)
+      let test_data = StringToByte(tempSendData)
+      let mg = (test_data[3] << 8) + test_data[4]
+      let umol = (test_data[5] << 8) + test_data[6]
       app.globalData.msg_list.push({
-        id: this.data.id,
-        t_data: ab2hex(characteristic.value).slice(0, 2),
-        power: ab2hex(characteristic.value).slice(2, 4),
-        value: ab2hex(characteristic.value),
+        id: test_data[2],
+        mg: mg,
+        umol: umol,
+        power: test_data[7],
         time: datetime
       })
-      console.log("收到数据列表",  app.globalData.msg_list)
       data["chs"] = app.globalData.msg_list
-      this.data.id += 1;
+      data["power"] = test_data[7]
+      console.log("收到数据列表", app.globalData.msg_list)
       this.setData(data)
     })
   },
   writeBLECharacteristicValue() {
     // 向蓝牙设备发送一个0x00的16进制数据
-		const tempSendData = "7f120c8f9240b8c453073b423151a845dc7afbbd";
-		let buffer = stringToHexBuffer(tempSendData)
+    const tempSendData = "7f120c8f9240b8c453073b423151a845dc7afbbd";
+    let buffer = stringToHexBuffer(tempSendData)
     wx.writeBLECharacteristicValue({
       deviceId: this._deviceId,
       serviceId: this._serviceId,
       characteristicId: this._characteristicId,
       value: buffer,
-      success: function (res) {
-		  },
-		  fail: function (res) {
-			console.log('write failed:', res)
-		  },
-		  complete: function (res) {
-		  }
+      success: function (res) {},
+      fail: function (res) {
+        console.log('write failed:', res)
+      },
+      complete: function (res) {}
     })
   },
   closeBluetoothAdapter() {
@@ -360,11 +389,14 @@ Page({
     console.log("onLoad");
     wx.getLocation({
       type: 'gcj02',
-      success (res) {
+      success(res) {
         console.log(res)
       }
-     })
+    })
     this.openBluetoothAdapter();
+  },
+  BackPage(e) {
+    this.closeBLEConnection(e);
   },
   /**
    * 生命周期函数--监听页面初次渲染完成

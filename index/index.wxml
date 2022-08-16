@@ -7,20 +7,23 @@ module.exports.len = function(arr) {
   return arr.length
 }
 </wxs>
-<cu-custom bgColor="bg-gradual-blue" isBack="{{false}}">
+<cu-custom bgColor="bg-gradual-blue" isBack="{{modalName=='bottomModal'}}">
   <block wx:if="{{modalName=='bottomModal'}}">
-    <view slot="content">设备名-{{name}}</view>
+    <view slot="backText" class="cuIcon-lightfill lg text-{{power > 20?'olive':'red'}}">
+      {{power}}%
+    </view>
+    <view slot="content" class="cuIcon-homefill lg text-white">{{name}}</view>
   </block>
   <block wx:else>
-    <view slot="content">蓝椰</view>
+    <view slot="content">小蓝椰</view>
   </block>
 </cu-custom>
 <swiper hidden="{{modalName=='bottomModal'}}" class="screen-swiper square-dot" indicator-dots="true" circular="true" autoplay="true" interval="5000" duration="500" bindchange="cardSwiper" indicator-color="#8799a3" indicator-active-color="#0081ff">
   <swiper-item wx:for="{{swiperList}}" wx:key="id" class="{{cardCur==index?'cur':''}}">
-      <image src="{{item.url}}" mode="aspectFill"></image>
-      <view style="font-size: 22px;width:{{width}}px;padding:10rpx; color: black; font-weight: 800; padding: 2px 0;position: absolute;bottom:0;left:0%;transform:translateX(0%);text-align:left;">
-         <text style="color:#FFFFFF;padding-left:30rpx;">小未·新青年</text>
-      </view>
+    <image src="{{item.url}}" mode="aspectFill"></image>
+    <view style="font-size: 22px;width:{{width}}px;padding:10rpx; color: black; font-weight: 800; padding: 2px 0;position: absolute;bottom:0;left:0%;transform:translateX(0%);text-align:left;">
+      <text style="color:#FFFFFF;padding-left:30rpx;">小未·新青年</text>
+    </view>
   </swiper-item>
 </swiper>
 <view hidden="{{modalName=='bottomModal'}}" class="bg-white solid-top solid-bottom">
@@ -28,52 +31,58 @@ module.exports.len = function(arr) {
 </view>
 <block wx:if="{{modalName=='bottomModal'}}">
   <scroll-view class="cu-list menu solid" style="height: 100%;width: 100%;" scroll-y scroll-with-animation>
-    <view class="flex cu-item bg-yellow solid-bottom padding justify-between">
-    <view>序号</view>
-    <view>温度</view>
-    <view>电量</view>
-    <view>接收时间</view>
+    <view class="flex cu-item bg-cyan shadow solid-bottom padding justify-between">
+      <view>序号</view>
+      <view>mg/dl</view>
+      <view>umol/L</view>
+      <view>接收时间</view>
     </view>
     <view wx:for="{{chs}}" wx:key="index" class="cu-item">
       <view class="flex solid-bottom padding justify-between">
-        <view class="padding-left-sm">{{item.id}}</view>
-        <view class="padding-left-sm">{{item.t_data}}</view>
-        <view class="padding-left-sm">{{item.power}}</view>
-        <view >{{item.time}}</view>
+        <view class="padding-left-xs">{{item.id}}</view>
+        <view class="padding-left-sm">{{item.mg}}</view>
+        <view class="padding-left-xs">{{item.umol}}</view>
+        <view>{{item.time}}</view>
       </view>
     </view>
   </scroll-view>
 </block>
 <block wx:else>
   <scroll-view class="cu-list menu" style="height: 100%;width: 100%;" scroll-y scroll-with-animation refresher-enabled="{{true}}" refresher-threshold="{{100}}" refresher-default-style="black" refresher-background="white" refresher-triggered="{{triggered}}" bindrefresherrefresh="onScrollRefresh">
-  <view wx:for="{{devices}}" wx:key="index"
-   data-device-id="{{item.deviceId}}"
-   data-name="{{item.name || item.localName}}"
-   bindtap="createBLEConnection"
-   data-target="bottomModal"
-   class="cu-item">
-   <view class="flex solid-bottom padding justify-between">
-      <view class="radius text-df">
-        <text class="cuIcon-rankfill text-blue " style="padding-right: 5rpx;"></text>
-        <text class="text-black">{{item.name}}</text>
-        <view style="font-size: 10px">信号强度: {{item.RSSI}}dBm ({{utils.max(0, item.RSSI + 100)}}%)</view>
-        <view style="font-size: 10px">UUID: {{item.deviceId}}</view>
+    <view wx:for="{{devices}}" wx:key="index" data-device-id="{{item.deviceId}}" data-name="{{item.name || item.localName}}" bindtap="createBLEConnection" data-target="bottomModal" class="cu-item">
+      <view class="flex solid-bottom padding justify-between">
+        <view class="radius text-df">
+          <text class="cuIcon-rankfill text-blue " style="padding-right: 5rpx;"></text>
+          <text class="text-black">{{item.name}}</text>
+          <view style="font-size: 10px">
+            信号强度: {{item.RSSI}}dBm ({{utils.max(0, item.RSSI + 100)}}%)
+          </view>
+          <view style="font-size: 10px">UUID: {{item.deviceId}}</view>
+        </view>
+        <button class="cu-btn bg-cyan shadow" bindtap="createBLEConnection" data-target="bottomModal">
+          连接
+        </button>
       </view>
-      <button class="cu-btn bg-cyan shadow" bindtap="createBLEConnection" data-target="bottomModal">连接</button>
     </view>
-  </view>
-</scroll-view>
+  </scroll-view>
 </block>
 <block wx:if="{{modalName=='bottomModal'}}">
   <view class="flex bg-gray" style="position:fixed; bottom:0;width: 750rpx; z-index: 999;">
-  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-olive shadow" bindtap="writeBLECharacteristicValue">读取数据</button>
-  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-red shadow" bindtap="closeBLEConnection">断开连接</button>
+    <!-- <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-olive shadow" bindtap="writeBLECharacteristicValue">
+      读取数据
+    </button> -->
+    <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-red shadow" bindtap="closeBLEConnection">
+      断开连接
+    </button>
   </view>
 </block>
 <block wx:else>
   <view class="flex bg-gray" style="position:fixed; bottom:0;width: 750rpx; z-index: 999;">
-  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-olive shadow" bindtap="startBluetoothDevicesDiscovery">扫描设备</button>
-  <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-red shadow" bindtap="stopBluetoothDevicesDiscovery">停止扫描</button>
+    <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-olive shadow" bindtap="startBluetoothDevicesDiscovery">
+      扫描设备
+    </button>
+    <!-- <button class="flex-sub padding-xs margin-sm cu-btn round lg bg-red shadow" bindtap="stopBluetoothDevicesDiscovery">
+      停止扫描
+    </button> -->
   </view>
 </block>
-
