@@ -229,7 +229,19 @@ Page({
   },
   createBLEConnection(e) {
     this.mcShowLoading("正在连接");
-    wx.stopBluetoothDevicesDiscovery()
+    if (this._discoveryStarted)
+    {
+      console.log("stop scanning before connected")
+      wx.stopBluetoothDevicesDiscovery({
+        success: (res) => {
+          console.log("stop scan success.")
+          this._discoveryStarted = false
+        },
+        fail: (res) => {
+          console.log("stop scan failed.")
+        }
+      })
+    }
     const ds = e.currentTarget.dataset
     const deviceId = ds.deviceId
     const name = ds.name
@@ -263,6 +275,10 @@ Page({
       chs: [],
       canWrite: false,
     })
+    wx.startBluetoothDevicesDiscovery({
+      allowDuplicatesKey: true,
+    })
+    this._discoveryStarted = true
   },
   getBLEDeviceServices(deviceId) {
     wx.getBLEDeviceServices({
@@ -321,28 +337,6 @@ Page({
       this.receiveData(ab2hex(characteristic.value));
       var datetime = getNowTime()
       const data = {}
-      // const idx = inArray(this.data.chs, 'uuid', characteristic.characteristicId)
-      /*
-      if (idx === -1) {
-        data[`chs[${this.data.chs.length}]`] = {
-          id: this.data.id,
-          t_data: 66,
-          power: 90,
-          uuid: characteristic.characteristicId,
-          value: ab2hex(characteristic.value),
-          time: datetime
-        }
-      } else {
-        data[`chs[${idx}]`] = {
-          id: this.data.id,
-          t_data: 66,
-          power: 90,
-          uuid: characteristic.characteristicId,
-          value: ab2hex(characteristic.value),
-          time: datetime
-        } 
-      }
-      */
       let _data = buf2hex(characteristic.value);
       const tempSendData = "AA550308610C8A5A0000000000000055AA";
       //let test_data = buf2hex(characteristic.value)
