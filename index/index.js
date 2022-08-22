@@ -68,6 +68,8 @@ Page({
     triggered: false,
     connected: false,
     chs: [],
+    // serviceId: "0000fff0-0000-1000-8000-00805f9b34fb",
+		// receiveId: "0000fff1-0000-1000-8000-00805f9b34fb",
     power: 99,
     name: "生物有限公司",
     cardCur: 0,
@@ -229,9 +231,10 @@ Page({
   },
   createBLEConnection(e) {
     this.mcShowLoading("正在连接");
+    console.log("Stop scanning before connected")
     if (this._discoveryStarted)
     {
-      console.log("stop scanning before connected")
+      console.log("Scanning, stop that.")
       wx.stopBluetoothDevicesDiscovery({
         success: (res) => {
           console.log("stop scan success.")
@@ -242,6 +245,7 @@ Page({
         }
       })
     }
+    console.log("Not scanning, direct connect.")
     const ds = e.currentTarget.dataset
     const deviceId = ds.deviceId
     const name = ds.name
@@ -249,6 +253,7 @@ Page({
       deviceId,
       success: (res) => {
         this.mcShowSuccess("连接成功");
+        console.log("连接成功");
         this.setData({
           connected: true,
           name,
@@ -259,6 +264,16 @@ Page({
       },
       fail: (res) => {
         this.mcShowNone("连接失败");
+        console.log("连接失败, errCode:", res.errCode);
+        wx.startBluetoothDevicesDiscovery({
+          allowDuplicatesKey: true,
+          success: (res) => {
+            this._discoveryStarted = true
+            console.log('startBluetoothDevicesDiscovery success', res)
+            this.onBluetoothDeviceFound()
+          },
+        })
+        
       }
     })
   },
@@ -294,6 +309,7 @@ Page({
     })
   },
   getBLEDeviceCharacteristics(deviceId, serviceId) {
+    console.log("serviceId:", serviceId)
     wx.getBLEDeviceCharacteristics({
       deviceId,
       serviceId,

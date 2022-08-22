@@ -49,7 +49,7 @@ module.exports.len = function(arr) {
 </block>
 <block wx:else>
   <scroll-view class="cu-list menu" style="height: 100%;width: 100%;" scroll-y scroll-with-animation refresher-enabled="{{true}}" refresher-threshold="{{100}}" refresher-default-style="black" refresher-background="white" refresher-triggered="{{triggered}}" bindrefresherrefresh="onScrollRefresh">
-    <view wx:for="{{devices}}" wx:key="index" data-device-id="{{item.deviceId}}" data-name="{{item.name || item.localName}}" bindtap="createBLEConnection" data-target="bottomModal" class="cu-item">
+    <view wx:for="{{devices}}" wx:key="index" class="cu-item">
       <view class="flex solid-bottom padding justify-between">
         <view class="radius text-df">
           <text class="cuIcon-rankfill text-blue " style="padding-right: 5rpx;"></text>
@@ -59,7 +59,7 @@ module.exports.len = function(arr) {
           </view>
           <view style="font-size: 10px">UUID: {{item.deviceId}}</view>
         </view>
-        <button class="cu-btn bg-cyan shadow" bindtap="createBLEConnection" data-target="bottomModal">
+        <button class="cu-btn bg-cyan shadow" bindtap="createBLEConnection" data-device-id="{{item.deviceId}}" data-name="{{item.name || item.localName}}" data-target="bottomModal">
           连接
         </button>
       </view>
