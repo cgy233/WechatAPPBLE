@@ -1,5 +1,3 @@
-var ble = require('./bleSdk.js');
-
 const app = getApp();
 
 function stringToHexBuffer(data) {
@@ -68,8 +66,9 @@ Page({
     triggered: false,
     connected: false,
     chs: [],
-    // serviceId: "0000fff0-0000-1000-8000-00805f9b34fb",
-		// receiveId: "0000fff1-0000-1000-8000-00805f9b34fb",
+    isScanning: false,
+    serviceId: "0000ffe0-0000-1000-8000-00805f9b34fb",
+		receiveId: "0000ffe1-0000-1000-8000-00805f9b34fb",
     power: 99,
     name: "生物有限公司",
     cardCur: 0,
@@ -186,13 +185,14 @@ Page({
     })
   },
   startBluetoothDevicesDiscovery() {
-    this.mcShowLoading("开始扫描");
-    console.log('startBluetoothDevicesDiscovery success')
+    // this.mcShowLoading("开始扫描");
     this.setData({
       connected: false,
       chs: [],
       canWrite: false,
+      isScanning: true,
     })
+    console.log('startBluetoothDevicesDiscovery success')
     if (this._discoveryStarted) {
       return
     }
@@ -206,7 +206,10 @@ Page({
     })
   },
   stopBluetoothDevicesDiscovery() {
-    this.mcShowSuccess("停止扫描");
+    // this.mcShowLoading("开始扫描");
+    this.setData({
+      isScanning: false,
+    })
     console.log('Stop scan.')
     wx.stopBluetoothDevicesDiscovery()
   },
@@ -301,7 +304,7 @@ Page({
       success: (res) => {
         for (let i = 0; i < res.services.length; i++) {
           if (res.services[i].isPrimary) {
-            this.getBLEDeviceCharacteristics(deviceId, res.services[i].uuid)
+            this.getBLEDeviceCharacteristics(deviceId, app.globalData.platform == 'ios' ? this.data.serviceId.toUpperCase() : this.data.serviceId.toLowerCase())
             return
           }
         }
@@ -339,6 +342,7 @@ Page({
               deviceId,
               serviceId,
               characteristicId: item.uuid,
+              // characteristicId: this.receiveId,
               state: true,
             })
           }
@@ -350,15 +354,20 @@ Page({
     })
     // 操作之前先监听，保证第一时间获取数据
     wx.onBLECharacteristicValueChange((characteristic) => {
+      if (!ab2hex(characteristic.value))
+      {
+        return
+      }
       this.receiveData(ab2hex(characteristic.value));
       var datetime = getNowTime()
       const data = {}
-      let _data = buf2hex(characteristic.value);
-      const tempSendData = "AA550308610C8A5A0000000000000055AA";
-      //let test_data = buf2hex(characteristic.value)
-      let test_data = StringToByte(tempSendData)
-      let mg = (test_data[3] << 8) + test_data[4]
-      let umol = (test_data[5] << 8) + test_data[6]
+      //let _data = buf2hex(characteristic.value);
+      //const tempSendData = "AA55 03 0861 0C8A 5A 0000000000000055AA";
+      let test_data = StringToByte(ab2hex(characteristic.value))
+      console.log("test_data: ", test_data[0])
+      //let test_data = StringToByte(tempSendData)
+      let mg = ((test_data[3] << 8) | test_data[4]) / 10
+      let umol = ((test_data[5] << 8) | test_data[6])
       app.globalData.msg_list.push({
         id: test_data[2],
         mg: mg,

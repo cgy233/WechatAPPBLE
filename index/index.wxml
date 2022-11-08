@@ -48,7 +48,7 @@ module.exports.len = function(arr) {
   </scroll-view>
 </block>
 <block wx:else>
-  <scroll-view class="cu-list menu" style="height: 100%;width: 100%;" scroll-y scroll-with-animation refresher-enabled="{{true}}" refresher-threshold="{{100}}" refresher-default-style="black" refresher-background="white" refresher-triggered="{{triggered}}" bindrefresherrefresh="onScrollRefresh">
+  <scroll-view class="cu-list menu" style="height: 100%;width: 100%;" scroll-y scroll-with-animation refresher-enabled="{{false}}" refresher-threshold="{{100}}" refresher-default-style="black" refresher-background="white" refresher-triggered="{{triggered}}" bindrefresherrefresh="onScrollRefresh">
     <view wx:for="{{devices}}" wx:key="index" class="cu-item">
       <view class="flex solid-bottom padding justify-between">
         <view class="radius text-df">
